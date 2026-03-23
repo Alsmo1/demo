@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University AI Chatbot - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --olive-light: #3A662A;
+            --olive-dark: #5C6E4A;
+            --bg-light: #FFFFFF;
+            --bg-dark: #1A1A1A;
+            --text-light: #2C2C2C;
+            --text-dark: #F5F5F5;
+            --card-light: #F8F9FA;
+            --card-dark: #2D2D2D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .light-mode .header {
+            background: var(--bg-light);
+        }
+
+        .dark-mode .header {
+            background: var(--card-dark);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--olive-light);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--olive-light);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(156, 175, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--olive-light);
+        }
+
+        .light-mode .btn-secondary {
+            color: var(--text-light);
+        }
+
+        .dark-mode .btn-secondary {
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--olive-light);
+            color: white;
+        }
+
+        /* Theme Toggle - Fixed Position */
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--olive-light);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle::after {
+            content: '☀️';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .dark-mode .theme-toggle::after {
+            content: '🌙';
+            left: 27px;
+        }
+
+        /* Hero Section */
+        .hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 50px;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--olive-light), var(--olive-dark));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* Features */
+        .features {
+            padding: 80px 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .feature-card {
+            background: var(--card-light);
+        }
+
+        .dark-mode .feature-card {
+            background: var(--card-dark);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(156, 175, 136, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--olive-light);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 30px 50px;
+            text-align: center;
+            border-top: 1px solid var(--olive-light);
+            margin-top: 50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .logo {
+                order: 1;
+                flex: 1;
+            }
+
+            .theme-toggle {
+                order: 2;
+            }
+
+            .header-buttons {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .hero {
+                padding: 40px 20px;
+            }
+
+            .hero-content h1 {
+                font-size: 28px;
+            }
+
+            .hero-content p {
+                font-size: 16px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features {
+                padding: 40px 20px;
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">🎓 University AI</div>
+        <div class="theme-toggle" onclick="toggleTheme()"></div>
+        <div class="header-buttons">
+            <a href="login.html" class="btn btn-secondary">Login</a>
+            <a href="register.html" class="btn btn-primary">Create Account</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Your Smart Assistant in Your University Journey</h1>
+            <p>Learn, research, and organize your academic information with advanced AI</p>
+            <div class="cta-buttons">
+                <a href="register.html" class="btn btn-primary">Start Now</a>
+                <a href="#features" class="btn btn-secondary">Explore Features</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features" id="features">
+        <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h3>Smart Conversations</h3>
+            <p>Get instant answers to your academic questions powered by AI</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Organized Lectures</h3>
+            <p>Access all your lectures and study materials in one place</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>Advanced Search</h3>
+            <p>Search your notes and lectures easily and quickly</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📁</div>
+            <h3>File Management</h3>
+            <p>Upload and organize your study files professionally</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 University AI Chatbot. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.remove("light-mode", "dark-mode");
+            document.body.classList.add(savedTheme + "-mode");
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

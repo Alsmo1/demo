@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - University AI</title>
+    <style>
+        /* Reusing styles from login.html for consistency */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        h1 { color: #3A662A; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+        input:focus { outline: none; border-color: #3A662A; }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #3A662A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58, 102, 42, 0.4); }
+        .alert {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert.error { background: #fee; color: #c33; }
+        .alert.success { background: #efe; color: #3c3; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Verify Account</h1>
+        <p>Enter the 6-digit code sent to <br><strong id="emailDisplay">your email</strong></p>
+        
+        <div id="alert" class="alert"></div>
+
+        <div id="verifyForm">
+            <input type="text" id="otp" maxlength="6" placeholder="000000" required pattern="[0-9]{6}">
+            <button type="button" class="btn" onclick="handleVerify()">Verify Email</button>
+        </div>
+        
+        <p style="margin-top: 20px; font-size: 14px;">
+            Didn't receive code? 
+            <a href="#" id="resendBtn" style="color: #3A662A;">Resend</a>
+            <span id="timerContainer" style="display: none; color: #666;">
+                (Wait <span id="timer">60</span>s)
+            </span>
+        </p>
+    </div>
+
+    <script>
+        const API_URL = '';
+        
+        // 1. Extract Email from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        // URLSearchParams automatically decodes the parameter (e.g., %40 -> @)
+        const email = urlParams.get('email') ? urlParams.get('email').trim() : null;
+        
+        if (email) {
+            document.getElementById('emailDisplay').textContent = email;
+        } else {
+            showAlert('Email not found. Please register again.', 'error');
+            document.getElementById('otp').disabled = true;
+            document.querySelector('.btn').disabled = true;
+        }
+
+        function showAlert(msg, type) {
+            const el = document.getElementById('alert');
+            el.textContent = msg;
+            el.className = `alert ${type}`;
+            el.style.display = 'block';
+        }
+
+        // 2. Handle Verification
+        async function handleVerify() {
+            const otpInput = document.getElementById('otp');
+            const otp = otpInput.value.trim();
+
+            if (!otp) {
+                showAlert('Please enter the verification code', 'error');
+                return;
+            }
+
+            // Validate exactly 6 digits
+            if (!/^\d{6}$/.test(otp)) {
+                showAlert('Code must be exactly 6 digits', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/verify-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('verifyForm').style.display = 'none';
+                    // Hide resend link paragraph
+                    document.getElementById('resendBtn').parentElement.style.display = 'none';
+                    
+                    const card = document.querySelector('.card');
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'success-message';
+                    successDiv.innerHTML = `
+                        <div class="success-icon">🎉</div>
+                        <h3 style="color: #3A662A; margin-bottom: 10px;">Email Verified!</h3>
+                        <button class="btn" onclick="window.location.href='login.html'">Go to Login 🔐</button>
+                    `;
+                    card.appendChild(successDiv);
+                } else {
+                    showAlert(data.detail || 'Verification failed', 'error');
+                }
+            } catch (err) {
+                showAlert('Connection error', 'error');
+            }
+        }
+
+        // Restrict input to numbers only
+        document.getElementById('otp').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Timer Logic
+        function startResendTimer(duration = 60) {
+            const btn = document.getElementById('resendBtn');
+            const container = document.getElementById('timerContainer');
+            const timerSpan = document.getElementById('timer');
+            
+            let timeLeft = duration;
+            
+            // Disable button
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+            btn.style.textDecoration = 'none';
+            
+            // Show timer
+            container.style.display = 'inline';
+            timerSpan.textContent = timeLeft;
+            
+            const interval = setInterval(() => {
+                timeLeft--;
+                timerSpan.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                    btn.style.textDecoration = 'underline';
+                    container.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        // Start timer on load
+        startResendTimer();
+
+        // Resend Logic
+        document.getElementById('resendBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if(!email) return;
+            try {
+                const response = await fetch(`${API_URL}/auth/resend-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                if (response.ok) {
+                    showAlert('New code sent!', 'success');
+                    startResendTimer();
+                } else {
+                    const data = await response.json();
+                    showAlert(data.detail || 'Failed to resend', 'error');
+                }
+            } catch (err) {
+                showAlert('Connection error', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

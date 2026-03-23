@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - University AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --olive-light: #3A662A;
+            --olive-dark: #5C6E4A;
+            --bg-light: #FFFFFF;
+            --bg-dark: #1A1A1A;
+            --text-light: #2C2C2C;
+            --text-dark: #F5F5F5;
+            --card-light: #F8F9FA;
+            --card-dark: #2D2D2D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        body.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-light);
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+            color: var(--text-dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .card {
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .card {
+            background: var(--bg-light);
+        }
+
+        .dark-mode .card {
+            background: var(--card-dark);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--olive-light);
+        }
+
+        .subtitle {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode input {
+            background: var(--card-light);
+            color: var(--text-light);
+            border-color: #e0e0e0;
+        }
+
+        .dark-mode input {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            border-color: #444;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--olive-light);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--olive-light);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 102, 42, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .links a {
+            color: var(--olive-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            margin: 20px 0;
+            text-align: center;
+            opacity: 0.5;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .light-mode .top-bar {
+            background: rgba(255,255,255,0.9);
+        }
+
+        .dark-mode .top-bar {
+            background: rgba(45,45,45,0.9);
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--olive-light);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::after {
+            content: '☀️';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .dark-mode .theme-toggle::after {
+            content: '🌙';
+            left: 27px;
+        }
+
+        .back-home {
+            padding: 10px 20px;
+            background: var(--olive-light);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 102, 42, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .strength-weak { color: #c33; }
+        .strength-medium { color: #f90; }
+        .strength-strong { color: #3c3; }
+
+        .success-message {
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+            padding: 20px 0;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .countdown {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 80px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .top-bar {
+                padding: 10px 15px;
+            }
+
+            .back-home {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+
+        /* Password Toggle */
+        .password-wrapper {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 18px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        
+        .password-toggle:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="top-bar">
+        <a href="index.html" class="back-home">🏠 Home</a>
+        <div class="theme-toggle" onclick="toggleTheme()"></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">🎓</div>
+                <h1>Create Account</h1>
+                <p class="subtitle">Join us and start your learning journey</p>
+            </div>
+
+            <div id="alert" class="alert"></div>
+
+            <div id="registerForm">
+                <div class="form-group">
+                    <label for="email">University Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        placeholder="example@university.edu"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required 
+                            placeholder="••••••••"
+                            minlength="6"
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)">👁️</button>
+                    </div>
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            required 
+                            placeholder="••••••••"
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">👁️</button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn" id="registerBtn" onclick="handleRegister()">
+                    Create Account
+                </button>
+
+                <div class="loading" id="loading">
+                    <p>Creating account...</p>
+                </div>
+            </div>
+
+            <div class="divider">───────</div>
+
+            <div class="links">
+                <p>Already have an account? <a href="login.html">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Toggle Password Visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.textContent = "🙈";
+            } else {
+                input.type = "password";
+                btn.textContent = "👁️";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.remove("light-mode", "dark-mode");
+            document.body.classList.add(savedTheme + "-mode");
+
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            
+            if (token && role) {
+                try {
+                    const response = await fetch(`${API_URL}/user/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        console.log('✅ User already logged in, redirecting...');
+                        if (role === 'admin') {
+                            window.location.href = 'admin-dashboard.html';
+                        } else {
+                            window.location.href = 'chat.html';
+                        }
+                    } else {
+                        localStorage.clear();
+                    }
+                } catch (error) {
+                    console.error('Token validation error:', error);
+                    localStorage.clear();
+                }
+            }
+        });
+
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 1000);
+        }
+
+        document.getElementById('password').addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z\d]/.test(password)) strength++;
+            
+            if (password.length === 0) {
+                strengthDiv.textContent = '';
+            } else if (strength <= 1) {
+                strengthDiv.textContent = '⚠️ Weak password';
+                strengthDiv.className = 'password-strength strength-weak';
+            } else if (strength === 2) {
+                strengthDiv.textContent = '⚡ Medium password';
+                strengthDiv.className = 'password-strength strength-medium';
+            } else {
+                strengthDiv.textContent = '✅ Strong password';
+                strengthDiv.className = 'password-strength strength-strong';
+            }
+        });
+
+        async function handleRegister() {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            const registerBtn = document.getElementById('registerBtn');
+            const loading = document.getElementById('loading');
+
+            if (!emailInput.reportValidity() || !passwordInput.reportValidity() || !confirmInput.reportValidity()) {
+                return;
+            }
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmInput.value;
+
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match!');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('Password must be at least 6 characters');
+                return;
+            }
+
+            registerBtn.disabled = true;
+            loading.classList.add('show');
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('email', email);
+                formData.append('password', password);
+
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                let data = null;
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        console.log('No JSON response body');
+                    }
+                }
+
+                if (response.ok) {
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.querySelector('.divider').style.display = 'none';
+                    document.querySelector('.links').style.display = 'none';
+                    loading.classList.remove('show');
+
+                    const successDiv = document.createElement('div');
+                    successDiv.style.textAlign = 'center';
+                    successDiv.style.marginTop = '30px';
+                    successDiv.innerHTML = `
+                        <div class="success-icon">🎉</div>
+                        <h3 style="color: var(--olive-light); margin-bottom: 10px;">Account Created!</h3>
+                        <p>Welcome to University AI.</p>
+                        <p class="countdown">Redirecting to login...</p>
+                    `;
+
+                    document.querySelector('.card').appendChild(successDiv);
+
+                    setTimeout(() => {
+                        console.log('✅ Registration successful,now you can login');
+                        window.location.replace('login.html');
+                    }, 3000);
+                } else {
+                    const errorMessage = data?.detail || data?.message || 'Registration failed. Please try again.';
+                    showAlert(errorMessage);
+                    console.error('Registration failed:', errorMessage);
+                }
+
+            } catch (error) {
+                console.error('Register error:', error);
+                showAlert('Connection error. Please make sure the API is running on ' + API_URL);
+            } finally {
+                registerBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>

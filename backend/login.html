@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - University AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --olive-light: #3A662A;
+            --olive-dark: #5C6E4A;
+            --bg-light: #FFFFFF;
+            --bg-dark: #1A1A1A;
+            --text-light: #2C2C2C;
+            --text-dark: #F5F5F5;
+            --card-light: #F8F9FA;
+            --card-dark: #2D2D2D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        body.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-light);
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+            color: var(--text-dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .card {
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .card {
+            background: var(--bg-light);
+        }
+
+        .dark-mode .card {
+            background: var(--card-dark);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--olive-light);
+        }
+
+        .subtitle {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode input {
+            background: var(--card-light);
+            color: var(--text-light);
+            border-color: #e0e0e0;
+        }
+
+        .dark-mode input {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            border-color: #444;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--olive-light);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--olive-light);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 102, 42, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .links a {
+            color: var(--olive-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            margin: 20px 0;
+            text-align: center;
+            opacity: 0.5;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        /* Top Bar with Theme Toggle */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .light-mode .top-bar {
+            background: rgba(255,255,255,0.9);
+        }
+
+        .dark-mode .top-bar {
+            background: rgba(45,45,45,0.9);
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--olive-light);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::after {
+            content: '☀️';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .dark-mode .theme-toggle::after {
+            content: '🌙';
+            left: 27px;
+        }
+
+        .back-home {
+            padding: 10px 20px;
+            background: var(--olive-light);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 102, 42, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 80px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .top-bar {
+                padding: 10px 15px;
+            }
+
+            .back-home {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+
+        /* Password Toggle */
+        .password-wrapper {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 18px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        
+        .password-toggle:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <a href="/index_page" class="back-home">🏠 Home</a>
+        <div class="theme-toggle" onclick="toggleTheme()"></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">🎓</div>
+                <h1>Login</h1>
+                <p class="subtitle">Welcome back! Sign in to continue</p>
+            </div>
+
+            <div id="alert" class="alert"></div>
+
+            <!-- ✅ FIXED: Changed form to div to prevent race conditions -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        placeholder="example@university.edu"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required 
+                            placeholder="••••••••"
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)">👁️</button>
+                    </div>
+                </div>
+
+                <!-- ✅ FIXED: Changed type to button and added onclick -->
+                <button type="button" class="btn" id="loginBtn" onclick="handleLogin()">
+                    Login
+                </button>
+
+                <div class="loading" id="loading">
+                    <p>Signing in...</p>
+                </div>
+            </div>
+
+            <div class="divider">───────</div>
+
+            <div class="links">
+                <p>Don't have an account? <a href="register.html">Create Account</a></p>
+                <p style="margin-top: 10px;">
+                    <a href="forgot-password.html">Forgot Password?</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Toggle Password Visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.textContent = "🙈";
+            } else {
+                input.type = "password";
+                btn.textContent = "👁️";
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.remove("light-mode", "dark-mode");
+            document.body.classList.add(savedTheme + "-mode");
+        });
+
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        // Handle login
+        // ✅ FIXED: Replaced event listener with direct function
+        async function handleLogin() {
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loading');
+
+            loginBtn.disabled = true;
+            loading.classList.add('show');
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('role', data.role);
+                    
+                    if (data.role === 'student') {
+                        localStorage.setItem('show_welcome_alert', 'true');
+                    }
+                    
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        if (data.role === 'admin') {
+                            window.location.href = 'Admin-Dashboard.html';
+                        } else {
+                            window.location.href = 'chat.html';
+                        }
+                    }, 800); // ✅ FIXED: Reduced delay to 800ms
+                } else {
+                    showAlert(data.detail || 'Login failed. Please check your credentials.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Connection error. Please make sure the API is running.');
+            } finally {
+                loginBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            
+            if (token && role) {
+                try {
+                    const response = await fetch(`${API_URL}/user/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        console.log('✅ User already logged in, redirecting...');
+                        if (role === 'admin') {
+                            window.location.href = 'Admin-Dashboard.html';
+                        } else {
+                            window.location.href = 'chat.html';
+                        }
+                    } else {
+                        localStorage.clear();
+                    }
+                } catch (error) {
+                    console.error('Token validation error:', error);
+                    localStorage.clear();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

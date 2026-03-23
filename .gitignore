@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+_env
+*.db
+*.env
+university_chatbot.db
+uploads/
+lectures/
+chunks/
+cache_analytics.db

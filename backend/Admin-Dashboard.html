@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - University AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --olive-light: #3A662A;
+            --olive-dark: #5C6E4A;
+            --bg-light: #F5F5F5;
+            --bg-dark: #1A1A1A;
+            --text-light: #2C2C2C;
+            --text-dark: #F5F5F5;
+            --card-light: #FFFFFF;
+            --card-dark: #2D2D2D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        body.light-mode {
+            background: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            height: 100dvh;
+            padding: 20px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .light-mode .sidebar {
+            background: var(--card-light);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .sidebar {
+            background: var(--card-dark);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--olive-light);
+            margin: 0;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item:hover {
+            background: var(--olive-light);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: var(--olive-light);
+            color: white;
+        }
+
+        .reset-btn {
+            padding: 12px;
+            background: var(--olive-dark);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .reset-btn:hover {
+            background: var(--olive-light);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            padding: 12px;
+            background: #c33;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #a22;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header-bar h1 {
+            font-size: 32px;
+            color: var(--olive-light);
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--olive-light);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle::after {
+            content: '☀️';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .dark-mode .theme-toggle::after {
+            content: '🌙';
+            left: 27px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            padding: 25px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .stat-card {
+            background: var(--card-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .stat-card {
+            background: var(--card-dark);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(58, 102, 42, 0.3);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--olive-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .light-mode .section {
+            background: var(--card-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .section {
+            background: var(--card-dark);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: var(--olive-light);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--olive-light);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 102, 42, 0.4);
+        }
+
+        /* Upload Form */
+        .upload-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode input[type="text"],
+        .light-mode input[type="file"] {
+            background: var(--bg-light);
+            color: var(--text-light);
+            border-color: #e0e0e0;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode input[type="file"] {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            border-color: #444;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--olive-light);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid;
+        }
+
+        .light-mode th,
+        .light-mode td {
+            border-color: #e0e0e0;
+        }
+
+        .dark-mode th,
+        .dark-mode td {
+            border-color: #444;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--olive-light);
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.admin {
+            background: #f90;
+            color: white;
+        }
+
+        .badge.student {
+            background: var(--olive-light);
+            color: white;
+        }
+
+        .badge.positive {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge.negative {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Feedback Card */
+        .feedback-card {
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .feedback-card {
+            background: var(--bg-light);
+            border: 1px solid #e0e0e0;
+        }
+
+        .dark-mode .feedback-card {
+            background: var(--bg-dark);
+            border: 1px solid #444;
+        }
+
+        .feedback-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .feedback-user {
+            font-weight: 600;
+            color: var(--olive-light);
+        }
+
+        .feedback-date {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .feedback-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .light-mode .feedback-message {
+            background: white;
+        }
+
+        .dark-mode .feedback-message {
+            background: var(--card-dark);
+        }
+
+        .feedback-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 18px;
+        }
+
+        .feedback-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-stat-box {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .light-mode .feedback-stat-box {
+            background: var(--bg-light);
+        }
+
+        .dark-mode .feedback-stat-box {
+            background: var(--bg-dark);
+        }
+
+        .feedback-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .feedback-stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        /* Course Card Styles */
+        .course-card {
+            cursor: pointer;
+            border-left: 4px solid var(--olive-light);
+            position: relative;
+        }
+        .course-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(58, 102, 42, 0.2);
+        }
+
+        /* Mobile Menu & Overlay */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--olive-light);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active {
+            left: 220px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Desktop Sidebar Toggle */
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--olive-light);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(58, 102, 42, 0.1);
+        }
+
+        /* Resizer Styles */
+        .resizer {
+            width: 6px;
+            height: 100%;
+            background: transparent;
+            position: absolute;
+            right: 0;
+            top: 0;
+            cursor: col-resize;
+            z-index: 102;
+            transition: background 0.2s;
+        }
+
+        .resizer:hover, .sidebar:hover .resizer {
+            background: rgba(58, 102, 42, 0.2);
+        }
+
+        body.resizing {
+            cursor: col-resize;
+            user-select: none;
+        }
+
+        body.resizing .sidebar,
+        body.resizing .main-content {
+            transition: none !important;
+        }
+
+        @media (min-width: 769px) {
+            body.sidebar-collapsed .sidebar {
+                transform: translateX(-100%);
+            }
+            body.sidebar-collapsed .main-content {
+                margin-left: 0 !important;
+            }
+            body.sidebar-collapsed #expandSidebarBtn {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 200px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 70px; /* Space for toggle button */
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feedback-stats {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+            
+            /* Make tables scrollable on mobile */
+            #usersTable, #lecturesTable, #feedbacksContainer {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            #collapseSidebarBtn {
+                display: none;
+            }
+            #expandSidebarBtn {
+                display: none !important;
+            }
+            .resizer {
+                display: none;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .light-mode .modal-content { background: var(--card-light); }
+        .dark-mode .modal-content { background: var(--card-dark); }
+
+        .delete-course-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0.7;
+            transition: 0.2s;
+        }
+        .delete-course-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        @keyframes fadeInItem { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .new-item-fade-in {
+            animation: fadeInItem 0.4s ease-out;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .dark-mode .loading-overlay {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(58, 102, 42, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--olive-light);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-weight: 600;
+            color: var(--olive-light);
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">🎓 University AI</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="theme-toggle" onclick="toggleTheme()"></div>
+                <button id="collapseSidebarBtn" class="icon-btn" title="Collapse Sidebar">◀</button>
+            </div>
+        </div>
+        
+        <div class="menu-item active" data-section="dashboard">
+            <span>📊</span> Dashboard
+        </div>
+        <div class="menu-item" data-section="users">
+            <span>👥</span> Users
+        </div>
+        <div class="menu-item" data-section="lectures">
+            <span>📚</span> Courses
+        </div>
+        <!--<div class="menu-item" data-section="feedbacks">
+            <span>💬</span> Feedbacks
+        </div>-->
+        
+        <button class="logout-btn" onclick="logout()">
+            🚪 Logout
+        </button>
+        <div class="resizer" id="sidebarResizer"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header-bar">
+            <button id="expandSidebarBtn" class="icon-btn" style="display: none; margin-right: 15px;" title="Show Sidebar">☰</button>
+            <h1>Admin Dashboard 👨‍💼</h1>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="totalStudents">-</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-value" id="totalConversations">-</div>
+                    <div class="stat-label">Conversations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" id="totalCourses">-</div>
+                    <div class="stat-label">Courses</div>
+                </div>
+                <div class="stat-card" id="cache-stats-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value" id="cacheHitRate">-</div>
+                    <div class="stat-label">Cache Hit Rate</div>
+                </div>
+                <!--<div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-value" id="totalFeedbacks">-</div>
+                    <div class="stat-label">Feedbacks</div>
+                </div>-->
+            </div>
+            
+            <!-- Cache Stats Section -->
+            <div id="cache-stats" class="section" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="usersSection" class="section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Users Management</h2>
+            </div>
+            
+            <div class="upload-form" style="margin-bottom: 20px;">
+                <input 
+                    type="text" 
+                    id="userSearchInput" 
+                    placeholder="🔍 Search users by email..." 
+                    style="width: 100%;"
+                    onkeyup="filterUsers()"
+                >
+            </div>
+
+            <div id="usersTable"></div>
+        </div>
+
+        <!-- Lectures Section -->
+        <div id="lecturesSection" class="section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title" id="lecturesTitle">Course Management</h2>
+                <button id="backToCoursesBtn" class="btn" style="display: none;" onclick="showCoursesGrid()">
+                    ← Back to Courses
+                </button>
+            </div>
+            
+            <!-- Tier 1: Course Grid -->
+            <div id="coursesGridView">
+                <div class="upload-form" style="justify-content: flex-end; margin-bottom: 20px;">
+                    <button class="btn" onclick="createNewCourse()">
+                        + Create New Course
+                    </button>
+                </div>
+                <div id="coursesGrid" class="stats-grid"></div>
+            </div>
+
+            <!-- Tier 2: Detail View -->
+            <div id="courseDetailView" style="display: none;">
+                <div class="upload-form">
+                    <input type="file" id="lectureFile" accept=".pdf">
+                    <input type="text" id="lectureSubject" placeholder="Subject" style="flex: 1;" disabled>
+                    <button class="btn" onclick="uploadLecture()">
+                        📤 Upload to Context
+                    </button>
+                </div>
+                <!-- Progress Bar -->
+                <div id="uploadProgressContainer" style="display: none; margin-bottom: 20px;">
+                    <div style="width: 100%; background-color: #e0e0e0; border-radius: 8px; overflow: hidden;">
+                        <div id="uploadProgressBar" style="width: 0%; height: 20px; background-color: var(--olive-light); text-align: center; color: white; line-height: 20px; font-size: 12px; transition: width 0.3s ease;">0%</div>
+                    </div>
+                    <div id="uploadStatusText" style="font-size: 12px; margin-top: 5px; text-align: center; opacity: 0.8;">Starting upload...</div>
+                </div>
+                <div id="lecturesTable"></div>
+                
+                <!-- Delete Course Action (Low Visibility) -->
+                <div style="margin-top: 20px; text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+                    <button class="btn" style="background: #ef4444; font-size: 12px; opacity: 0.8;" onclick="initiateDeleteCourse()">
+                        🗑️ Delete Course
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedbacks Section -->
+        <div id="feedbacksSection" class="section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Student Feedbacks</h2>
+            </div>
+            
+            <!-- Feedback Statistics -->
+            <div class="feedback-stats">
+                <div class="feedback-stat-box">
+                    <div class="feedback-stat-value" style="color: #10b981;" id="positiveFeedbacks">0</div>
+                    <div class="feedback-stat-label">👍 Positive</div>
+                </div>
+                <div class="feedback-stat-box">
+                    <div class="feedback-stat-value" style="color: #ef4444;" id="negativeFeedbacks">0</div>
+                    <div class="feedback-stat-label">👎 Negative</div>
+                </div>
+                <div class="feedback-stat-box">
+                    <div class="feedback-stat-value" style="color: var(--olive-light);" id="totalFeedbacksCount">0</div>
+                    <div class="feedback-stat-label">📊 Total</div>
+                </div>
+            </div>
+
+            <div id="feedbacksContainer"></div>
+        </div>
+    </div>
+
+    <!-- Create Course Modal -->
+    <div id="addCourseModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; color: var(--olive-light);">Create New Course</h3>
+            <input type="text" id="newCourseName" placeholder="Enter course name..." style="width: 100%; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn" style="background: #666;" onclick="closeModal()">Cancel</button>
+                <button class="btn" onclick="submitNewCourse()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Course Confirmation Modal -->
+    <div id="deleteCourseModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; color: #ef4444;">Delete Course</h3>
+            <p style="margin-bottom: 20px;">Are you sure you want to delete this course? This cannot be undone.</p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn" style="background: #666;" onclick="closeDeleteCourseModal()">Cancel</button>
+                <button class="btn" style="background: #ef4444;" onclick="confirmDeleteCourse()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; color: #ef4444;">Confirm Deletion</h3>
+            <p style="margin-bottom: 20px;">Are you sure you want to delete this lecture? This action cannot be undone.</p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn" style="background: #666;" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn" style="background: #ef4444;" onclick="confirmDeleteLecture()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = ''; // Empty string uses current origin (relative path)
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            let isDark = false;
+
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                isDark = true;
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+                isDark = false;
+            }
+
+            // Update Chart Colors if chart exists
+            if (typeof cacheChart !== 'undefined' && cacheChart) {
+                const textColor = isDark ? '#F5F5F5' : '#2C2C2C';
+                const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                
+                if (cacheChart.options.scales.x) {
+                    cacheChart.options.scales.x.ticks.color = textColor;
+                    if (cacheChart.options.scales.x.grid) cacheChart.options.scales.x.grid.color = gridColor;
+                }
+                if (cacheChart.options.scales.y) {
+                    cacheChart.options.scales.y.ticks.color = textColor;
+                    if (cacheChart.options.scales.y.grid) cacheChart.options.scales.y.grid.color = gridColor;
+                }
+                if (cacheChart.options.plugins.legend) {
+                    cacheChart.options.plugins.legend.labels.color = textColor;
+                }
+                cacheChart.update();
+            }
+        }
+
+        // Toggle Sidebar for Mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+            
+            const toggleBtn = document.getElementById('menuToggle');
+            toggleBtn.classList.toggle('active');
+
+            if (toggleBtn.classList.contains('active')) {
+                toggleBtn.innerHTML = '←';
+            } else {
+                toggleBtn.innerHTML = '☰';
+            }
+        }
+
+        // Desktop Sidebar Logic
+        function toggleDesktopSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+            localStorage.setItem('sidebar_collapsed', isCollapsed);
+        }
+
+        function initSidebarState() {
+            const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+            if (isCollapsed && window.innerWidth > 768) {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        }
+
+        function initResizer() {
+            const sidebar = document.getElementById('sidebar');
+            const resizer = document.getElementById('sidebarResizer');
+            const mainContent = document.querySelector('.main-content');
+            let isResizing = false;
+
+            // Load saved width
+            const savedWidth = localStorage.getItem('sidebar_width');
+            if (savedWidth && window.innerWidth > 768) {
+                sidebar.style.width = savedWidth;
+                if (!document.body.classList.contains('sidebar-collapsed')) {
+                    mainContent.style.marginLeft = savedWidth;
+                }
+            }
+
+            resizer.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                document.body.classList.add('resizing');
+                
+                const handleMouseMove = (e) => {
+                    if (!isResizing) return;
+                    let newWidth = e.clientX;
+                    if (newWidth < 200) newWidth = 200;
+                    if (newWidth > 500) newWidth = 500;
+                    
+                    sidebar.style.width = `${newWidth}px`;
+                    mainContent.style.marginLeft = `${newWidth}px`;
+                };
+
+                const handleMouseUp = () => {
+                    isResizing = false;
+                    document.body.classList.remove('resizing');
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    localStorage.setItem('sidebar_width', sidebar.style.width);
+                };
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+        }
+
+        // Loading Spinner Functions
+        function showLoading(message = 'Loading...') {
+            document.querySelector('.loading-text').textContent = message;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Load theme and initialize
+        document.addEventListener("DOMContentLoaded", async () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.remove("light-mode", "dark-mode");
+            document.body.classList.add(savedTheme + "-mode");
+
+            initSidebarState();
+            initResizer();
+
+            document.getElementById('collapseSidebarBtn').addEventListener('click', toggleDesktopSidebar);
+            document.getElementById('expandSidebarBtn').addEventListener('click', toggleDesktopSidebar);
+
+            await checkAuth();
+            await loadStats();
+            await loadCacheAnalytics();
+
+            // Menu item click handlers
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    showSection(this.getAttribute('data-section'));
+                    // Close sidebar on mobile when item clicked
+                    if (window.innerWidth <= 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+
+        // Check authentication
+        async function checkAuth() {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            
+            if (!token || role !== 'admin') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/user/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const userData = await response.json();
+                if (userData.role !== 'admin') {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        // Show section
+        function showSection(section) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.menu-item[data-section="${section}"]`).classList.add('active');
+
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
+            document.getElementById('lecturesSection').style.display = 'none';
+            document.getElementById('feedbacksSection').style.display = 'none';
+
+            if (section === 'dashboard') {
+                document.getElementById('dashboardSection').style.display = 'block';
+                loadStats();
+            } else if (section === 'users') {
+                document.getElementById('usersSection').style.display = 'block';
+                loadUsers();
+            } else if (section === 'lectures') {
+                document.getElementById('lecturesSection').style.display = 'block';
+                showCoursesGrid();
+            } else if (section === 'feedbacks') {
+                document.getElementById('feedbacksSection').style.display = 'block';
+                loadFeedbacks();
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            const token = localStorage.getItem('token');
+            showLoading('Updating Stats...');
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/get-stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = data.stats;
+                    
+                    document.getElementById('totalStudents').textContent = stats.users?.total_students || 0;
+                    document.getElementById('totalConversations').textContent = stats.activity?.total_conversations || 0;
+                    document.getElementById('totalCourses').textContent = stats.courses?.total || 0;
+                    document.getElementById('totalFeedbacks').textContent = stats.feedback?.total || 0;
+                    
+                    // Update Cache Hit Rate in main card
+                    if (stats.cache && stats.cache.enabled) {
+                        document.getElementById('cacheHitRate').textContent = stats.cache.hit_rate + '%';
+                    }
+                } else if (response.status === 401) {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+            hideLoading();
+        }
+
+        let allUsers = [];
+        let lectureIdToDelete = null;
+        let courseIdToDelete = null;
+        let currentSelectedCourse = null;
+        let currentSelectedCourseId = null;
+
+        // Load users
+        async function loadUsers() {
+            const token = localStorage.getItem('token');
+            showLoading('Loading Users...');
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/get-users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    allUsers = data.users;
+                    displayUsers(allUsers);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+            hideLoading();
+        }
+
+        // Filter users
+        function filterUsers() {
+            const query = document.getElementById('userSearchInput').value.toLowerCase();
+            const filtered = allUsers.filter(user => 
+                user.email.toLowerCase().includes(query)
+            );
+            displayUsers(filtered);
+        }
+
+        // Display users
+        function displayUsers(users) {
+            const container = document.getElementById('usersTable');
+            
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.5;">No users found</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Registration Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${DOMPurify.sanitize(user.email)}</td>
+                                <td><span class="badge ${user.role}">${user.role === 'admin' ? 'Admin' : 'Student'}</span></td>
+                                <td>${new Date(user.created_at).toLocaleDateString('en-US')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Poll for lecture processing status
+        async function pollLectureStatus(lectureId) {
+            const token = localStorage.getItem('token');
+            const progressContainer = document.getElementById('uploadProgressContainer');
+
+            const intervalId = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_URL}/admin/lecture-status/${lectureId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!response.ok) {
+                        clearInterval(intervalId);
+                        progressContainer.style.display = 'none';
+                        console.error(`Polling failed for lecture ${lectureId}, status: ${response.status}`);
+                        // Refresh to show the error state from the server if any
+                        await openCourse(currentSelectedCourse, currentSelectedCourseId);
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.processing_status === 'completed') {
+                        clearInterval(intervalId);
+                        progressContainer.style.display = 'none';
+                        showAlert('✅ Lecture processed successfully!', 'success');
+                        await openCourse(currentSelectedCourse, currentSelectedCourseId);
+                        await loadStats();
+                    } else if (data.processing_status === 'failed') {
+                        clearInterval(intervalId);
+                        progressContainer.style.display = 'none';
+                        showAlert(`❌ Processing failed for lecture ${lectureId}: ${data.error_message || 'Unknown error'}`, 'error');
+                        await openCourse(currentSelectedCourse, currentSelectedCourseId);
+                    }
+                    // If status is 'processing', do nothing and let the interval run again.
+                    
+                } catch (error) {
+                    clearInterval(intervalId);
+                    progressContainer.style.display = 'none';
+                    console.error('Error during polling:', error);
+                }
+            }, 3000); // Poll every 3 seconds
+        }
+
+        // Upload lecture
+        function uploadLecture() {
+            const fileInput = document.getElementById('lectureFile');
+            const subjectInput = document.getElementById('lectureSubject');
+            const token = localStorage.getItem('token');
+
+            if (!fileInput.files[0]) {
+                showAlert('⚠️ Please select a PDF file', 'error');
+                return;
+            }
+            const file = fileInput.files[0];
+
+            const subject = subjectInput.value.trim();
+            if (!subject) {
+                showAlert('⚠️ Please enter subject name', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('subject', subject);
+
+            // UI Elements
+            const progressContainer = document.getElementById('uploadProgressContainer');
+            const progressBar = document.getElementById('uploadProgressBar');
+            const statusText = document.getElementById('uploadStatusText');
+            const uploadBtn = document.querySelector('#courseDetailView .upload-form button');
+
+            // Reset UI
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            statusText.textContent = 'Starting upload...';
+            uploadBtn.disabled = true;
+            uploadBtn.style.opacity = '0.6';
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${API_URL}/admin/upload-lecture`, true);
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+            // Track upload progress
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percentComplete + '%';
+                    progressBar.textContent = percentComplete + '%';
+                    
+                    if (percentComplete < 100) {
+                        statusText.textContent = `Uploading: ${percentComplete}%`;
+                    } else {
+                        statusText.textContent = 'Upload complete. Waiting for server to start processing...';
+                    }
+                }
+            };
+
+            xhr.onload = async function() {
+                // Re-enable button regardless of outcome
+                uploadBtn.disabled = false;
+                uploadBtn.style.opacity = '1';
+
+                // The server accepted the file for background processing
+                if (xhr.status === 202) {
+                    const data = JSON.parse(xhr.responseText);
+                    const lectureId = data.lecture_id;
+                    
+                    statusText.textContent = `Processing in background (ID: ${lectureId}). You can upload another file.`;
+
+                    showAlert('✅ Upload accepted. Processing in background...', 'info');
+                    fileInput.value = ''; // Clear file input for next upload
+
+                    // Optimistic UI update: add a "processing" row to the table
+                    const container = document.getElementById('lecturesTable');
+                    let tableBody = container.querySelector('tbody');
+
+                    if (!tableBody) {
+                        container.innerHTML = `<table><thead><tr><th>ID</th><th>Filename</th><th>Status</th><th>Upload Date</th><th>Actions</th></tr></thead><tbody></tbody></table>`;
+                        tableBody = container.querySelector('tbody');
+                    }
+                    
+                    const newRow = `<tr id="lecture-row-${lectureId}" class="new-item-fade-in"><td>${lectureId}</td><td>${DOMPurify.sanitize(file.name)}</td><td><span class="badge admin">Processing...</span></td><td>${new Date().toLocaleDateString('en-US')}</td><td><button class="btn" style="background: #ccc; padding: 5px 10px; font-size: 12px;" disabled>Delete</button></td></tr>`;
+                    tableBody.insertAdjacentHTML('afterbegin', newRow);
+
+                    // Start polling for the final status
+                    pollLectureStatus(lectureId);
+
+                } else { // Handle immediate errors
+                    progressContainer.style.display = 'none';
+                    let errorMessage = 'Upload failed';
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        errorMessage = data.detail || errorMessage;
+                    } catch (e) {}
+                    showAlert(`❌ ${errorMessage}`, 'error');
+                }
+            };
+
+            xhr.onerror = function() {
+                uploadBtn.disabled = false;
+                uploadBtn.style.opacity = '1';
+                progressContainer.style.display = 'none';
+                console.error('Error uploading lecture');
+                showAlert('❌ Server connection error', 'error');
+            };
+
+            xhr.send(formData);
+        }
+
+        // Load courses for the main grid view
+        async function loadCourses() {
+            showLoading('Loading Courses...');
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/admin/get-courses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    renderCoursesGrid(data.courses);
+                } else {
+                    showAlert('❌ Failed to load courses.', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showAlert('❌ Network error loading courses.', 'error');
+            }
+            hideLoading();
+        }
+
+        // Render Tier 1: Courses Grid
+        function renderCoursesGrid(courses) {
+            const grid = document.getElementById('coursesGrid');
+
+            if (!courses || courses.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">No courses found. Create one!</p>';
+                return;
+            }
+
+            grid.innerHTML = courses.map(course => `
+                <div class="stat-card course-card" id="course-card-${course.id}" onclick="openCourse('${course.name}', ${course.id})">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" style="font-size: 24px;">${DOMPurify.sanitize(course.name)}</div>
+                    <div class="stat-label">${course.lecture_count} Lectures</div>
+                    <div style="margin-top: 10px; font-size: 12px; opacity: 0.6;">
+                        Created: ${new Date(course.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Create New Course
+        function createNewCourse() {
+            document.getElementById('addCourseModal').style.display = 'flex';
+            document.getElementById('newCourseName').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('addCourseModal').style.display = 'none';
+            document.getElementById('newCourseName').value = '';
+        }
+
+        async function submitNewCourse() {
+            const name = document.getElementById('newCourseName').value;
+            if (!name || !name.trim()) {
+                showAlert('⚠️ Course name cannot be empty.', 'error');
+                return;
+            }
+            
+            showLoading('Creating Course...');
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/admin/create-course`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name: name.trim() })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('✅ Course created successfully!', 'success');
+                    closeModal();
+                    
+                    // Silent Injection (Optimistic UI)
+                    const grid = document.getElementById('coursesGrid');
+                    if (grid.innerHTML.includes('No courses found')) grid.innerHTML = '';
+
+                    const newCourseHtml = `
+                        <div class="stat-card course-card new-item-fade-in" id="course-card-${data.course_id}" onclick="openCourse('${data.name}', ${data.course_id})">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-value" style="font-size: 24px;">${data.name}</div>
+                            <div class="stat-label">0 Lectures</div>
+                            <div style="margin-top: 10px; font-size: 12px; opacity: 0.6;">
+                                Created: ${new Date().toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('afterbegin', newCourseHtml);
+                    
+                    // Update stats counter
+                    const countEl = document.getElementById('totalCourses');
+                    countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
+                } else {
+                    showAlert(`❌ ${data.detail || 'Failed to create course'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error creating course:', error);
+                showAlert('❌ Server connection error', 'error');
+            }
+            hideLoading();
+        }
+
+        // Delete Course Functions
+        function initiateDeleteCourse() {
+            courseIdToDelete = currentSelectedCourseId;
+            document.getElementById('deleteCourseModal').style.display = 'flex';
+        }
+
+        function closeDeleteCourseModal() {
+            document.getElementById('deleteCourseModal').style.display = 'none';
+            courseIdToDelete = null;
+        }
+
+        async function confirmDeleteCourse() {
+            if (!courseIdToDelete) return;
+            showLoading('Deleting Course...');
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/admin/delete-course/${courseIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    showAlert('✅ Course deleted successfully');
+                    
+                    // Silent Removal Logic
+                    const card = document.getElementById(`course-card-${courseIdToDelete}`);
+                    if (card) card.remove();
+
+                    // Update stats counter
+                    const countEl = document.getElementById('totalCourses');
+                    countEl.textContent = Math.max(0, (parseInt(countEl.textContent) || 0) - 1);
+
+                    // Check empty state
+                    const grid = document.getElementById('coursesGrid');
+                    if (grid.children.length === 0) {
+                        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">No courses found. Create one!</p>';
+                    }
+                } else {
+                    const data = await response.json();
+                    showAlert(`❌ ${data.detail || 'Failed to delete course'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showAlert('❌ Server connection error', 'error');
+            }
+            closeDeleteCourseModal();
+            hideLoading();
+        }
+
+        // Open Tier 2: Detail View
+        async function openCourse(courseName, courseId) {
+            currentSelectedCourse = courseName;
+            currentSelectedCourseId = courseId;
+            
+            // Update UI State
+            document.getElementById('coursesGridView').style.display = 'none';
+            document.getElementById('backToCoursesBtn').style.display = 'block';
+            document.getElementById('lecturesTitle').textContent = `Course: ${courseName}`;
+            
+            // Contextual Automation
+            document.getElementById('lectureSubject').value = courseName;
+
+            showLoading(`Loading lectures for ${courseName}...`);
+            // Fetch and display lectures for this course
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/admin/course/${courseName}/lectures`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('courseDetailView').style.display = 'block';
+                    displayLectures(data.lectures);
+                } else {
+                    showAlert(`❌ Failed to load lectures for ${courseName}.`, 'error');
+                    displayLectures([]); // Show empty state
+                }
+            } catch (error) {
+                console.error('Error loading course lectures:', error);
+                showAlert('❌ Network error loading lectures.', 'error');
+            }
+            hideLoading();
+        }
+
+        // Back to Grid
+        function showCoursesGrid() {
+            currentSelectedCourse = null;
+            currentSelectedCourseId = null;
+            document.getElementById('coursesGridView').style.display = 'block';
+            document.getElementById('courseDetailView').style.display = 'none';
+            document.getElementById('backToCoursesBtn').style.display = 'none';
+            document.getElementById('lecturesTitle').textContent = 'Course Management';
+            loadCourses();
+        }
+
+        // Display lectures
+        function displayLectures(lectures) {
+            const container = document.getElementById('lecturesTable');
+            
+            if (!lectures || lectures.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.5; margin-top: 20px;">No lectures in this course yet. Upload one above!</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Filename</th>
+                            <th>Status</th>
+                            <th>Upload Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${lectures.map(lecture => `
+                            <tr id="lecture-row-${lecture.id}">
+                                <td>${lecture.id}</td>
+                                <td>${DOMPurify.sanitize(lecture.filename)}</td>
+                                <td><span class="badge ${getStatusClass(lecture.processing_status)}">${getStatusText(lecture.processing_status)}</span></td>
+                                <td>${new Date(lecture.uploaded_at).toLocaleDateString('en-US')}</td>
+                                <td>
+                                    <button class="btn" style="background: #ef4444; padding: 5px 10px; font-size: 12px;" onclick="deleteLecture(${lecture.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Open Delete Modal
+        function deleteLecture(id) {
+            lectureIdToDelete = id;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            lectureIdToDelete = null;
+        }
+
+        async function confirmDeleteLecture() {
+            if (!lectureIdToDelete) return;
+            showLoading('Deleting Lecture...');
+            const id = lectureIdToDelete;
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/admin/delete-lecture/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    showAlert('✅ Lecture deleted successfully');
+                    openCourse(currentSelectedCourse, currentSelectedCourseId); // Refresh the current course view
+                    loadStats(); // Also refresh stats
+                } else {
+                    showAlert('❌ Failed to delete lecture', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting lecture:', error);
+                showAlert('❌ Server connection error', 'error');
+            }
+            closeDeleteModal();
+            hideLoading();
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const statusMap = {
+                'completed': 'Completed',
+                'processing': 'Processing',
+                'failed': 'Failed',
+                'pending': 'Pending'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getStatusClass(status) {
+            if (status === 'completed') return 'positive';
+            if (status === 'failed') return 'negative';
+            return 'admin'; // Orange/Yellow for pending/processing
+        }
+
+        // Load ALL feedbacks
+        async function loadFeedbacks() {
+            const token = localStorage.getItem('token');
+            showLoading('Loading Feedbacks...');
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/get-feedbacks`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Handle if backend returns a list directly OR { feedbacks: [] }
+                    let items = [];
+                    if (Array.isArray(data)) {
+                        items = data;
+                    } else if (data.feedbacks) {
+                        items = data.feedbacks;
+                    }
+                    
+                    displayFeedbacks(items);
+                } else {
+                    console.error("Feedback API Error:", response.status);
+                    showAlert(`❌ Failed to load feedbacks (Status: ${response.status})`, 'error');
+                }
+            } catch (error) {
+                console.error('Error loading feedbacks:', error);
+                showAlert('❌ Network error loading feedbacks', 'error');
+            }
+            hideLoading();
+        }
+
+        // Display ALL feedbacks
+        function displayFeedbacks(feedbacks) {
+            const container = document.getElementById('feedbacksContainer');
+            
+            if (!feedbacks || feedbacks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; opacity: 0.5;">No feedbacks yet</p>';
+                
+                // Reset stats
+                document.getElementById('positiveFeedbacks').textContent = '0';
+                document.getElementById('negativeFeedbacks').textContent = '0';
+                document.getElementById('totalFeedbacksCount').textContent = '0';
+                return;
+            }
+
+            // Calculate statistics
+            const positive = feedbacks.filter(f => (f.feedback_type || '').toLowerCase() === 'positive').length;
+            const negative = feedbacks.filter(f => (f.feedback_type || '').toLowerCase() === 'negative').length;
+            
+            document.getElementById('positiveFeedbacks').textContent = positive;
+            document.getElementById('negativeFeedbacks').textContent = negative;
+            document.getElementById('totalFeedbacksCount').textContent = feedbacks.length;
+
+            // Display all feedbacks with contextual greeting
+            container.innerHTML = feedbacks.map(feedback => {
+                const type = (feedback.feedback_type || 'neutral').toLowerCase();
+                
+                return `
+                <div class="feedback-card">
+                    <div class="feedback-header">
+                        <div>
+                            <span class="feedback-user">${DOMPurify.sanitize(feedback.user_email || 'Unknown User')}</span>
+                            <br>
+                            <small class="feedback-date">${new Date(feedback.created_at).toLocaleString('en-US')}</small>
+                        </div>
+                        <div class="feedback-type">
+                            ${type === 'positive' ? '👍' : '👎'}
+                            <span class="badge ${type}">${type === 'positive' ? 'Positive' : 'Negative'}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 10px 0; opacity: 0.7; font-size: 12px;">
+                        Conversation: ${DOMPurify.sanitize(feedback.conversation_title || 'Untitled')}
+                    </div>
+
+                    <div class="feedback-message">
+                        <strong>Message:</strong>
+                        <p style="margin: 5px 0;">${DOMPurify.sanitize(feedback.message_content || '')}</p>
+                    </div>
+                    
+                    ${feedback.comment ? `
+                        <div style="margin-top: 10px; padding: 10px; border-radius: 5px; background: rgba(58, 102, 42, 0.1);">
+                            <strong>Comment:</strong>
+                            <p style="margin: 5px 0;">${DOMPurify.sanitize(feedback.comment || '')}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `}).join('');
+        }
+        
+        // =======================
+        // Cache Management
+        // =======================
+
+        // 1. Get Cache Analytics
+        async function loadCacheAnalytics() {
+            const response = await fetch(`${API_URL}/admin/cache/info`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.enabled) {
+                displayCacheStats(data.info, data.analytics);
+            }
+        }
+
+        // 2. Warm Cache
+        async function warmCache() {
+            showLoading('Warming Cache...');
+            const response = await fetch(`${API_URL}/admin/cache/warm`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            const data = await response.json();
+            hideLoading();
+            showAlert(`✅ Cache warmed with ${data.entries_added} entries`, 'success');
+            loadCacheAnalytics(); // Refresh stats
+        }
+
+        // 3. Clear Cache
+        async function clearCache() {
+            if (!confirm('Are you sure you want to clear the entire cache?')) {
+                return;
+            }
+            
+            showLoading('Clearing Cache...');
+            const response = await fetch(`${API_URL}/admin/cache/clear`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            const data = await response.json();
+            hideLoading();
+            showAlert('✅ Cache cleared successfully', 'success');
+            loadCacheAnalytics();
+        }
+
+        // 4. Invalidate Old Entries
+        async function invalidateOldCache() {
+            const hours = prompt('Remove entries older than (hours):', '24');
+            if (!hours) return;
+            
+            showLoading('Invalidating Cache...');
+            const response = await fetch(`${API_URL}/admin/cache/invalidate?max_age_hours=${hours}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            const data = await response.json();
+            hideLoading();
+            showAlert(`✅ Removed ${data.deleted_count} expired entries`, 'success');
+            loadCacheAnalytics();
+        }
+
+        // 5. Display Cache Stats
+        let cacheChart = null;
+
+        function displayCacheStats(info, analytics) {
+            const cacheSection = document.getElementById('cache-stats');
+            
+            if (!analytics) return;
+            
+            // Prepare data for chart (reverse to show oldest to newest)
+            const labels = (analytics.daily_breakdown || []).map(d => d.date).reverse();
+            const hits = (analytics.daily_breakdown || []).map(d => d.cache_hits).reverse();
+            const misses = (analytics.daily_breakdown || []).map(d => d.cache_misses).reverse();
+
+            cacheSection.innerHTML = `
+                <div class="section-header">
+                    <h2 class="section-title">Semantic Cache Performance</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Cache Hit Rate</div>
+                        <div class="stat-value" style="color: #10b981;">${analytics.hit_rate}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Entries</div>
+                        <div class="stat-value">${info.total_entries}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Requests</div>
+                        <div class="stat-value">${analytics.total_requests}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Similarity</div>
+                        <div class="stat-value">${analytics.avg_similarity_score}</div>
+                    </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="stat-card" style="margin-bottom: 20px; padding: 20px;">
+                    <h3 style="margin-bottom: 15px; font-size: 18px; color: var(--olive-light);">7-Day Performance History</h3>
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="cacheChart"></canvas>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="btn" onclick="warmCache()">🔥 Warm Cache</button>
+                    <button class="btn" onclick="invalidateOldCache()">🧹 Clean Old</button>
+                    <button class="btn" style="background: #ef4444;" onclick="clearCache()">🗑️ Clear All</button>
+                </div>
+            `;
+
+            // Render Chart
+            const ctx = document.getElementById('cacheChart').getContext('2d');
+            
+            if (cacheChart) {
+                cacheChart.destroy();
+            }
+
+            // Check theme for chart colors
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#F5F5F5' : '#2C2C2C';
+            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+
+            cacheChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Cache Hits',
+                            data: hits,
+                            backgroundColor: '#10b981',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Cache Misses',
+                            data: misses,
+                            backgroundColor: '#ef4444',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false, color: gridColor },
+                            ticks: { color: textColor }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
+                        }
+                    },
+                    plugins: {
+                        legend: { 
+                            position: 'top',
+                            labels: { color: textColor }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
